@@ -1,8 +1,9 @@
-name: CI
+name: Economic Calender
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 17 * * SAT'
   push:
     branches: [ main ]
 
@@ -17,5 +18,5 @@ jobs:
         python-version: '3.9'
     - name: Install dependencies
       run: pip install -r requirements.txt
-    - name: Run tests
+    - name: Run main.py
       run: python main.py
