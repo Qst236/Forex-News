@@ -93,7 +93,7 @@ def filterNews(data):
 def sendWebhook(dateRange, text):
     try:
         webhook = SyncWebhook.from_url(
-            ${{ secrets.WEBHOOK_URL }}
+            $secrets.WEBHOOK_URL
         )
         webhook.send(embed=discord.Embed(title=f"Economic Calendar  :date:  {dateRange}", description=text, color=0x00ff00))
 
