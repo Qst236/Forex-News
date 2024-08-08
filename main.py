@@ -1,3 +1,4 @@
+import os
 import json
 import pytz
 import time
@@ -93,7 +94,7 @@ def filterNews(data):
 def sendWebhook(dateRange, text):
     try:
         webhook = SyncWebhook.from_url(
-            $secrets.WEBHOOK_URL
+            os.environ.get('WEBHOOK_URL')
         )
         webhook.send(embed=discord.Embed(title=f"Economic Calendar  :date:  {dateRange}", description=text, color=0x00ff00))
 
