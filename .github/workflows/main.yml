@@ -3,7 +3,7 @@ name: Economic Calender
 on:
   workflow_dispatch:
   schedule:
-    - cron: '37 5 * * THU'
+    - cron: '50 5 * * THU'
   push:
     branches: [ main ]
 
