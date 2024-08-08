@@ -116,7 +116,7 @@ def sendWebhook(content):
         webhook.edit_message(os.environ['MESSAGE_ID'], embed=discord.Embed(
         # webhook.edit_message('1270990015186473000', embed=discord.Embed(
             description=content,
-            color=0x00ebff
+            color=0x58b9ff
         ))
     except Exception:
         print("Gagal mengirim webhook")
