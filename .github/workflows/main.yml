@@ -1,4 +1,4 @@
-name: Economic Calender
+name: Economic Calendar
 
 on:
   workflow_dispatch:
