@@ -96,7 +96,7 @@ def sendWebhook(dateRange, text):
         webhook = SyncWebhook.from_url(
             os.environ['WEBHOOK_URL']
         )
-        webhook.send(embed=discord.Embed(title=f"Economic Calendar  :date:  {dateRange}", description=text, color=0x00ff00))
+        webhook.send(embed=discord.Embed(title=f":date:  {dateRange}", description=text, color=0x00ff00))
 
     except Exception:
         print("Gagal mengirim webhook")
