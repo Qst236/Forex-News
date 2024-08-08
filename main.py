@@ -4,10 +4,14 @@ import pytz
 import time
 import discord
 import requests
-from discord import SyncWebhook
 from datetime import datetime
+from datetime import timedelta
+from discord import SyncWebhook
 
 def getNewsApi():
+    # with open("news.json", "r") as f:
+    #     return json.load(f)
+
     try:
         url = "https://nfs.faireconomy.media/ff_calendar_thisweek.json"
 
@@ -23,25 +27,10 @@ def getNewsApi():
             for item in data:
                 item["date"] = changeTimezone(item["date"])
 
-            # Extract dates from first and last elements
-            firstDateStr = data[0]["date"]
-            lastDateStr = data[-1]["date"]
-
-            # Convert dates to datetime objects
-            first_date = datetime.strptime(firstDateStr, "%Y-%m-%dT%H:%M:%S%z")
-            last_date = datetime.strptime(lastDateStr, "%Y-%m-%dT%H:%M:%S%z")
-
-            # Format dates as "DD Ags - DD Ags"
-            first_date_formatted = first_date.strftime("%d %b")
-            last_date_formatted = last_date.strftime("%d %b")
-
-            # Combine formatted dates with hyphen
-            dateRange = f"{first_date_formatted} - {last_date_formatted}"
-
             with open("news.json", "w") as outfile:
                 json.dump(data, outfile, indent=2)
 
-            return data, dateRange
+            return data # , dateRange
     except Exception:
         print("Mengulang pengambilan news")
         time.sleep(5)
@@ -58,7 +47,7 @@ def formatJsonData(data):
     for item in data:
         date_str = item["date"][:10]
         date = datetime.strptime(date_str, "%Y-%m-%d")
-        day = date.strftime("%A, %d %B")
+        day = date.strftime("%A, %d %B %Y")
         time = (
             "  All Day ` "
             if item["impact"] == "Holiday"
@@ -67,14 +56,40 @@ def formatJsonData(data):
         if day not in data_by_date:
             data_by_date[day] = []
         data_by_date[day].append(
-            f":flag_{item['country'][:2].lower()}:  `{item['country']}{time}**{item['title']}**\n"
+            f":flag_{item['country'][:2].lower()}:  **{item['country']}**`{time}**{item['title']}**\n"
         )
 
-    text_output = ""
-    for day, events in data_by_date.items():
-        text_output += f"**{day}**\n"
-        text_output += "".join(events) + "\n"
-    return text_output
+    now = datetime.strptime(os.environ['UPDATE_TIME'], "%Y-%m-%d %H:%M")
+    today = now.strftime("%A, %d %B %Y")
+    tomorrow = (now + timedelta(days=1)).strftime("%A, %d %B %Y")
+    # today = 'Saturday, 10 August 2024'
+
+    title = f":date: **{today}**\n"
+    content = ""
+    date_content = True
+    for events in data_by_date.get(today, []):
+        if events[22:24] >= "04":
+            if date_content:
+                content += title
+                date_content = False
+            content += events
+    
+    if today.split(',')[0] == "Saturday" or today.split(',')[0] == "Sunday":
+        content += title
+        content += "market hasn't open yet.\nget out from your bed now.\n"
+    elif content == "":
+        content += title
+        content += "nothing news today, go touch some grass.\n"
+
+    date_content = True
+    for events in data_by_date.get(tomorrow, []):
+        if events[22:24] < "04":
+            if date_content:
+                content += f"\n:date: **{tomorrow}**\n"
+                date_content = False
+            content += events
+
+    return content
 
 def filterNews(data):
     filtered_data = []
@@ -91,23 +106,27 @@ def filterNews(data):
             filtered_data.append(filtered_item)
     return filtered_data
 
-def sendWebhook(dateRange, text):
+def sendWebhook(content):
     try:
         webhook = SyncWebhook.from_url(
             os.environ['WEBHOOK_URL']
+            # "https://discord.com/api/webhooks/1270912850617176105/E1ZRf6qMhRBeKU8CmhRQZBw0O_chALW1KVe6bMr7mml4vM_T2DENT3b8AqHTSReiZPIu"
         )
-        webhook.send(embed=discord.Embed(title=f":date:  {dateRange}", description=text, color=0x00ebff))
-
+        # webhook.send(embed=discord.Embed(title=f":date:  {dateRange}", description=text, color=0x00ebff))
+        webhook.edit_message(os.environ['MESSAGE_ID'], embed=discord.Embed(
+        # webhook.edit_message('1270990015186473000', embed=discord.Embed(
+            description=content,
+            color=0x00ebff
+        ))
     except Exception:
         print("Gagal mengirim webhook")
         time.sleep(5)
-        return sendWebhook()
+        return sendWebhook(content)
 
 # Format and print the text
 def main():
-    JsonData = getNewsApi()
-    text = formatJsonData(filterNews(JsonData[0]))
-    print(text)
-    sendWebhook(JsonData[1], text)
+    content = formatJsonData(filterNews(getNewsApi()))
+    # print(text)
+    sendWebhook(content)
 
 main()
