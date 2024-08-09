@@ -44,7 +44,6 @@ def changeTimezone(date):
 
 
 def formatJsonData(data):
-    """Formats JSON data into the desired text string."""
     data_by_date = {}
     for item in data:
         date_str = item["date"][:10]
@@ -97,14 +96,8 @@ def filterNews(data):
     filtered_data = []
     for item in data:
         if item["impact"] != "Low" and item["impact"] != "Medium":
-            # Copy item dictionary to avoid modifying original data
             filtered_item = item.copy()
-
             filtered_item["date"] = changeTimezone(filtered_item["date"])
-
-            # del filtered_item['forecast']
-            # del filtered_item['previous']
-            # del filtered_item['url']
             filtered_data.append(filtered_item)
     return filtered_data
 
@@ -114,21 +107,18 @@ def sendWebhook(content):
             os.environ['WEBHOOK_URL']
         )
         webhook.delete_message(read('MESSAGE_ID'))
-        # webhook.send(embed=discord.Embed(title=f":date:  {dateRange}", description=text, color=0x00ebff))
         message = webhook.send(embed=discord.Embed(
-            # webhook.edit_message('1270990015186473000', embed=discord.Embed(
                 description=content,
                 color = discord.Color.random()
             ), wait=True)
 
-        write(".env", f'MESSAGE_ID={message.id}' )
+        write(".env", f'MESSAGE_ID = {message.id}' )
     
     except Exception:
         print("Gagal mengirim webhook")
         time.sleep(5)
         return sendWebhook(content)
 
-# Format and print the text
 def main():
     content = formatJsonData(filterNews(getNewsApi()))
     print(content)
