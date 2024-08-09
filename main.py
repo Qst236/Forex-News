@@ -4,14 +4,19 @@ import pytz
 import time
 import discord
 import requests
-from datetime import datetime
-from datetime import timedelta
+from dotenv import load_dotenv
 from discord import SyncWebhook
+from datetime import datetime, timedelta
 
+load_dotenv()
+def read(data):
+    return os.environ[data]
+
+def write(dir, data):
+    with open(dir, "w") as file:
+        file.write(data)
+    
 def getNewsApi():
-    # with open("news.json", "r") as f:
-    #     return json.load(f)
-
     try:
         url = "https://nfs.faireconomy.media/ff_calendar_thisweek.json"
 
@@ -26,9 +31,6 @@ def getNewsApi():
 
             for item in data:
                 item["date"] = changeTimezone(item["date"])
-
-            with open("news.json", "w") as outfile:
-                json.dump(data, outfile, indent=2)
 
             return data # , dateRange
     except Exception:
@@ -111,11 +113,16 @@ def sendWebhook(content):
         webhook = SyncWebhook.from_url(
             os.environ['WEBHOOK_URL']
         )
+        webhook.delete_message(read('MESSAGE_ID'))
         # webhook.send(embed=discord.Embed(title=f":date:  {dateRange}", description=text, color=0x00ebff))
-        webhook.edit_message(os.environ['MESSAGE_ID'], embed=discord.Embed(
-            description=content,
-            color=0x58b9ff
-        ))
+        message = webhook.send(embed=discord.Embed(
+            # webhook.edit_message('1270990015186473000', embed=discord.Embed(
+                description=content,
+                color = discord.Color.random()
+            ), wait=True)
+
+        write(".env", f'MESSAGE_ID={message.id}' )
+    
     except Exception:
         print("Gagal mengirim webhook")
         time.sleep(5)
@@ -124,7 +131,7 @@ def sendWebhook(content):
 # Format and print the text
 def main():
     content = formatJsonData(filterNews(getNewsApi()))
-    # print(text)
+    print(content)
     sendWebhook(content)
 
 main()
