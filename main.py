@@ -65,7 +65,7 @@ def formatJsonData(data):
     tomorrow = (now + timedelta(days=1)).strftime("%A, %d %B %Y")
     # today = 'Saturday, 10 August 2024'
 
-    title = f":date: **{today}**\n\n"
+    title = f":date: **{today}** ***(WIB)***\n\n"
     content = ""
     date_content = True
     for events in data_by_date.get(today, []):
@@ -86,7 +86,7 @@ def formatJsonData(data):
     for events in data_by_date.get(tomorrow, []):
         if events[22:24] < "04":
             if date_content:
-                content += f"\n:date: **{tomorrow}**\n\n"
+                content += f"\n:date: **{tomorrow}** ***(WIB)***\n\n"
                 date_content = False
             content += events
 
