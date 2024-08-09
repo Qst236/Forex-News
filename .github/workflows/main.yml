@@ -36,7 +36,7 @@ jobs:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
           MESSAGE_ID: ${{ secrets.MESSAGE_ID }}
           UPDATE_TIME: ${{ env.UPDATE_TIME }}
-        run: python main.py
+        run: python main.py --file news.json
 
       - name: push release
         run: |
