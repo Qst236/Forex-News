@@ -110,11 +110,9 @@ def sendWebhook(content):
     try:
         webhook = SyncWebhook.from_url(
             os.environ['WEBHOOK_URL']
-            # "https://discord.com/api/webhooks/1270912850617176105/E1ZRf6qMhRBeKU8CmhRQZBw0O_chALW1KVe6bMr7mml4vM_T2DENT3b8AqHTSReiZPIu"
         )
         # webhook.send(embed=discord.Embed(title=f":date:  {dateRange}", description=text, color=0x00ebff))
         webhook.edit_message(os.environ['MESSAGE_ID'], embed=discord.Embed(
-        # webhook.edit_message('1270990015186473000', embed=discord.Embed(
             description=content,
             color=0x58b9ff
         ))
