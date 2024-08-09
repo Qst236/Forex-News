@@ -1,48 +1,46 @@
-name: Economic Calendar
+name: Update News Information
 
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 21 * * *'
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
+    
     steps:
 
       - name: set variables
         run: |
           echo "UPDATE_TIME=$(TZ='Asia/Jakarta' date +%Y-%m-%d\ %H:%M)" >> $GITHUB_ENV
-          ls
 
-      - uses: actions/checkout@v3
-      - name: Set up Python
+      - name: set up python 3
         uses: actions/setup-python@v3
         with:
           python-version: '3.9'
 
       - name: prepare release
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with: 
-          path: release
           ref: main
-
-      - name: Install dependencies
+          
+      - name: install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run main.py
+      - name: run main.py
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-          MESSAGE_ID: ${{ secrets.MESSAGE_ID }}
           UPDATE_TIME: ${{ env.UPDATE_TIME }}
-        run: python main.py --file release/news.json
+        run: python main.py
 
       - name: push release
         run: |
-          git -C release config --local user.name github-actions
-          git -C release config --local user.email github-actions@github.com
-          git -C release add news.json
-          git -C release commit -m "auto update at ${{ env.UPDATE_TIME }}" --allow-empty
-          git -C release push
+          git config --local user.name github-actions
+          git config --local user.email github-actions@github.com
+          git add .env
+          git commit -m "auto update at ${{ env.UPDATE_TIME }}" --allow-empty
+          git push
