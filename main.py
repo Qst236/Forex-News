@@ -1,47 +1,54 @@
-import os
+pimport os
 import json
 import pytz
 import time
 import discord
 import requests
-from dotenv import load_dotenv
 from discord import SyncWebhook
 from datetime import datetime, timedelta
 
-load_dotenv()
-def read(data):
-    return os.environ[data]
+debug = False
+def debug(text):
+    if debug:
+        print(text)
 
-def write(dir, data):
-    with open(dir, "w") as file:
-        file.write(data)
-    
+file_path = ".json"
+def read():
+    try:
+        with open(file_path, "r") as file:
+            return json.load(file)
+    except Exception as e:
+        debug(f"read: {e}")
+        return {}
+
+def write(data):
+    with open(file_path, "w") as file:
+        json.dump(data, file, indent=2)
+
 def getNewsApi():
     try:
         url = "https://nfs.faireconomy.media/ff_calendar_thisweek.json"
-
         headers = {
             "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0"
         }
 
         response = requests.get(url, headers=headers)
-
         if response.status_code == 200:
             data = response.json()
 
             for item in data:
                 item["date"] = changeTimezone(item["date"])
 
-            return data # , dateRange
-    except Exception:
-        print("Mengulang pengambilan news")
+            debug(f"getNewsApi: {data}")
+            return data
+    except Exception as e:
+        debug(f"getNewsApi: {e}")
         time.sleep(5)
         return getNewsApi()
 
 def changeTimezone(date):
-    utc7 = datetime.fromisoformat(date).astimezone(pytz.timezone("Asia/Jakarta"))
-    return utc7.isoformat()  # Kembalikan ke format ISO 8601
-
+    utc_plus_7 = datetime.fromisoformat(date).astimezone(pytz.timezone("Asia/Jakarta"))
+    return utc_plus_7.isoformat()
 
 def formatJsonData(data):
     data_by_date = {}
@@ -57,15 +64,15 @@ def formatJsonData(data):
         if day not in data_by_date:
             data_by_date[day] = []
         data_by_date[day].append(
-            f":flag_{item['country'][:2].lower()}:  **{item['country']}**`{time}**{item['title']}**\n"
+            f":flag_{item['country'][:2].lower()}:  **{item['country']}**`{time}**{item['title']}**"
         )
 
-    now = datetime.strptime(os.environ['UPDATE_TIME'], "%Y-%m-%d %H:%M")
+    now = datetime.strptime(os.environ["UPDATE_TIME"], "%Y-%m-%d %H:%M")
     today = now.strftime("%A, %d %B %Y")
     tomorrow = (now + timedelta(days=1)).strftime("%A, %d %B %Y")
     # today = 'Saturday, 10 August 2024'
 
-    title = f":date: **{today}** ***(WIB)***\n\n"
+    title = f":date: **{today}**\n\n"
     content = ""
     date_content = True
     for events in data_by_date.get(today, []):
@@ -73,9 +80,9 @@ def formatJsonData(data):
             if date_content:
                 content += title
                 date_content = False
-            content += events
-    
-    if today.split(',')[0] == "Saturday" or today.split(',')[0] == "Sunday":
+            content += f"{events}\n"
+
+    if today.split(",")[0] == "Saturday" or today.split(",")[0] == "Sunday":
         content += title
         content += "market hasn't open yet.\nget out from your bed now.\n"
     elif content == "":
@@ -86,11 +93,21 @@ def formatJsonData(data):
     for events in data_by_date.get(tomorrow, []):
         if events[22:24] < "04":
             if date_content:
-                content += f"\n:date: **{tomorrow}** ***(WIB)***\n\n"
+                content += "\n﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋"
+                content += f"\n:date: **{tomorrow}**\n\n"
                 date_content = False
-            content += events
+            content += f"{events}\n"
+            
+    weekly = []
+    if today.split(",")[0] == "Sunday":
+        for day, events in data_by_date.items():
+            weekly.append(f":date: **{day}**\n")
+            weekly.extend(events)
+            weekly.append("\n﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋")
 
-    return content
+    cweekly = "\n".join(weekly[:-1])
+    debug(f"formatJsonData: {content, cweekly}")
+    return content, cweekly
 
 def filterNews(data):
     filtered_data = []
@@ -99,29 +116,51 @@ def filterNews(data):
             filtered_item = item.copy()
             filtered_item["date"] = changeTimezone(filtered_item["date"])
             filtered_data.append(filtered_item)
+
+    debug(f"filterNews: {filtered_data}")
     return filtered_data
 
-def sendWebhook(content):
+def sendWebhook(daily, weekly, data):
     try:
         webhook = SyncWebhook.from_url(
-            os.environ['WEBHOOK_URL']
+            os.environ["WEBHOOK_URL"]
         )
-        webhook.delete_message(read('MESSAGE_ID'))
-        message = webhook.send(embed=discord.Embed(
-                description=content,
-                color = discord.Color.random()
-            ), wait=True)
 
-        write(".env", f'MESSAGE_ID = {message.id}' )
-    
-    except Exception:
-        print("Gagal mengirim webhook")
+        if weekly:
+            if "WEEKLY_ID" in data:
+                webhook.delete_message(data["WEEKLY_ID"])
+
+            weekly = webhook.send(
+                username="Weekly News Schedule",
+                embed=discord.Embed(description=weekly, color=discord.Color.random()),
+                wait=True,
+            )
+
+            data["WEEKLY_ID"] = weekly.id
+
+        if "DAILY_ID" in data:
+            webhook.delete_message(data["DAILY_ID"])
+
+        daily = webhook.send(
+            username="Daily News Schedule",
+            embed=discord.Embed(description=daily, color=discord.Color.random()),
+            wait=True,
+        )
+
+        data["DAILY_ID"] = daily.id
+
+        debug(f"sendWebhook: {data}")
+        return data
+
+    except Exception as e:
+        debug(f"sendWebhook : {e}")
         time.sleep(5)
-        return sendWebhook(content)
+        return sendWebhook(daily, weekly, data)
 
 def main():
+    data = read()
     content = formatJsonData(filterNews(getNewsApi()))
-    print(content)
-    sendWebhook(content)
+    newData = sendWebhook(content[0], content[1], data)
+    write(newData)
 
 main()
