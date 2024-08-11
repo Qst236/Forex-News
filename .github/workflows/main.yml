@@ -41,6 +41,6 @@ jobs:
         run: |
           git config --local user.name github-actions
           git config --local user.email github-actions@github.com
-          git add .env
+          git add .json
           git commit -m "auto update at ${{ env.UPDATE_TIME }}" --allow-empty
           git push
