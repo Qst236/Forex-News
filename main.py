@@ -1,4 +1,4 @@
-import os
+ipmport os
 import json
 import pytz
 import time
@@ -6,6 +6,31 @@ import discord
 import requests
 from discord import SyncWebhook
 from datetime import datetime, timedelta
+
+week = {
+    'Mon' : 'Senin',
+    'Tue' : 'Selasa',
+    'Wed' : 'Rabu',
+    'Thu' : 'Kamis',
+    'Fri' : 'Jumat',
+    'Sat' : 'Sabtu',
+    'Sun' : 'Minggu'
+}
+
+month = {
+    'Jan' : 'Januari',
+    'Feb' : 'Februari',
+    'Mar' : 'Maret',
+    'Apr' : 'April',
+    'May' : 'Mei',
+    'Jun' : 'Juni',
+    'Jul' : 'Juli',
+    'Aug' : 'Agustus',
+    'Sep' : 'September',
+    'Oct' : 'Oktober',
+    'Nov' : 'November',
+    'Dec' : 'Desember'
+}
 
 debug = False
 def debug(text):
@@ -24,6 +49,10 @@ def read():
 def write(data):
     with open(file_path, "w") as file:
         json.dump(data, file, indent=2)
+
+def changeLang(date):
+    d = date.replace(',', '').split(' ')
+    return f"{week[ d[0] ]}, {d[1]} {month[ d[2] ]}"
 
 def getNewsApi():
     try:
@@ -52,10 +81,11 @@ def changeTimezone(date):
 
 def formatJsonData(data):
     data_by_date = {}
+    last = ""
     for item in data:
         date_str = item["date"][:10]
         date = datetime.strptime(date_str, "%Y-%m-%d")
-        day = date.strftime("%A, %d %B %Y")
+        day = changeLang (date.strftime("%a, %d %b") )
         time = (
             "  All Day ` "
             if item["impact"] == "Holiday"
@@ -63,13 +93,17 @@ def formatJsonData(data):
         )
         if day not in data_by_date:
             data_by_date[day] = []
+    
         data_by_date[day].append(
             f":flag_{item['country'][:2].lower()}:  **{item['country']}**`{time}**{item['title']}**"
         )
+        
+     
 
     now = datetime.strptime(os.environ["UPDATE_TIME"], "%Y-%m-%d %H:%M")
-    today = now.strftime("%A, %d %B %Y")
-    tomorrow = (now + timedelta(days=1)).strftime("%A, %d %B %Y")
+    # now = datetime.now(pytz.timezone('Asia/Jakarta'))
+    today = changeLang( now.strftime("%a, %d %b") )
+    tomorrow = changeLang( (now + timedelta(days=1)).strftime("%a, %d %b") )
     # today = 'Saturday, 10 August 2024'
 
     title = f":date: **{today}**\n\n"
@@ -80,9 +114,10 @@ def formatJsonData(data):
             if date_content:
                 content += title
                 date_content = False
+            
             content += f"{events}\n"
 
-    if today.split(",")[0] == "Saturday" or today.split(",")[0] == "Sunday":
+    if today.split(",")[0] == "Sabtu" or today.split(",")[0] == "Minggu":
         content += title
         content += "market hasn't open yet.\nget out from your bed now.\n"
     elif content == "":
@@ -99,7 +134,7 @@ def formatJsonData(data):
             content += f"{events}\n"
             
     weekly = []
-    if today.split(",")[0] == "Sunday":
+    if today.split(",")[0] == "Senin":
         for day, events in data_by_date.items():
             weekly.append(f":date: **{day}**\n")
             weekly.extend(events)
@@ -124,6 +159,7 @@ def sendWebhook(daily, weekly, data):
     try:
         webhook = SyncWebhook.from_url(
             os.environ["WEBHOOK_URL"]
+            # "https://discord.com/api/webhooks/1271664086563946536/c4AnCMnD2c_PNVgHVb3eW49IXNncw-mu9VFkIV-nTi1Y_PW9m_C8HuQdxweCwOsfCUWd"
         )
 
         if weekly:
@@ -131,8 +167,7 @@ def sendWebhook(daily, weekly, data):
                 webhook.delete_message(data["WEEKLY_ID"])
 
             weekly = webhook.send(
-                username="Weekly News Schedule",
-                embed=discord.Embed(description=weekly, color=discord.Color.random()),
+                embed=discord.Embed(description=weekly, color=discord.Color.random()).set_footer(text='*Waktu: WIB (Asia/Jakarta)\n*Khusus berita dampak GEDE'),
                 wait=True,
             )
 
@@ -140,14 +175,15 @@ def sendWebhook(daily, weekly, data):
 
         if "DAILY_ID" in data:
             webhook.delete_message(data["DAILY_ID"])
-
+        '''
         daily = webhook.send(
-            username="Daily News Schedule",
+            username="Daily News Schedule"
             embed=discord.Embed(description=daily, color=discord.Color.random()),
             wait=True,
         )
 
         data["DAILY_ID"] = daily.id
+        '''
 
         debug(f"sendWebhook: {data}")
         return data
