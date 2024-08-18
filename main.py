@@ -157,6 +157,7 @@ def filterNews(data):
 
 def sendWebhook(daily, weekly, data):
     try:
+        newData = []
         webhook = SyncWebhook.from_url(
             os.environ["WEBHOOK_URL"]
             # "https://discord.com/api/webhooks/1271664086563946536/c4AnCMnD2c_PNVgHVb3eW49IXNncw-mu9VFkIV-nTi1Y_PW9m_C8HuQdxweCwOsfCUWd"
@@ -171,22 +172,23 @@ def sendWebhook(daily, weekly, data):
                 wait=True,
             )
 
-            data["WEEKLY_ID"] = weekly.id
+            newData["WEEKLY_ID"] = weekly.id
 
+        '''
         if "DAILY_ID" in data:
             webhook.delete_message(data["DAILY_ID"])
-        '''
+        
         daily = webhook.send(
             username="Daily News Schedule"
             embed=discord.Embed(description=daily, color=discord.Color.random()),
             wait=True,
         )
 
-        data["DAILY_ID"] = daily.id
+        newData["DAILY_ID"] = daily.id
         '''
 
-        debug(f"sendWebhook: {data}")
-        return data
+        debug(f"sendWebhook: {newData}")
+        return newData
 
     except Exception as e:
         debug(f"sendWebhook : {e}")
