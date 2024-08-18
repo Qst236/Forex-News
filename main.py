@@ -134,7 +134,7 @@ def formatJsonData(data):
             content += f"{events}\n"
             
     weekly = []
-    if today.split(",")[0] == "Senin":
+    if today.split(",")[0] == "Minggu":
         for day, events in data_by_date.items():
             weekly.append(f":date: **{day}**\n")
             weekly.extend(events)
@@ -159,7 +159,7 @@ def sendWebhook(daily, weekly, data):
     try:
         newData = []
         webhook = SyncWebhook.from_url(
-            os.environ["WEBHOOK_URL"]
+            os.environ["WEBHOOK_URL"].
             # "https://discord.com/api/webhooks/1271664086563946536/c4AnCMnD2c_PNVgHVb3eW49IXNncw-mu9VFkIV-nTi1Y_PW9m_C8HuQdxweCwOsfCUWd"
         )
 
