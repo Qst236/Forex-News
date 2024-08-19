@@ -37,7 +37,7 @@ month = {
     'Dec' : 'Desember'
 }
 
-db = False
+db = True
 def debug(text):
     if db:
         print(text)
@@ -130,17 +130,17 @@ def formatJsonData(data):
         if re.search(":", item["time"]):
             time_str = item['date'][11:16]
             timed = datetime.strptime(time_str, "%H:%M")
-            time = timed.strftime("%-H:%M").center(10, " ")
+            time = timed.strftime("%-H:%M")
         else:
-            time = item["time"].center(10, " ")
+            time = item["time"]
         
         if item["impact"] != "Low" and item["impact"] != "Medium":
             if time == last:
-                time = " " * 10
+                time = " " * 8
             else:
                 last = time
             data_by_date[day].append(
-                f"`{time}`{createFlag(item['country'])}  **{item['country'].upper()}** - **{item['title']}**"
+                f"`{time.center(8, " ")}`{createFlag(item['country'])}  **{item['country'].upper()}** - **{item['title']}**"
             )
         
      
@@ -231,7 +231,9 @@ def sendWebhook(daily, weekly, data):
 
 def main():
     data = read()
+    debug("read oke")
     content = formatJsonData(getNewsApi())
+    debug("format json oke")
     # content = formatJsonData(news)
     newData = sendWebhook(content[0], content[1], data)
     write(newData)
