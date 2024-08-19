@@ -186,6 +186,8 @@ def formatJsonData(data):
     weekly = []
     if today.split(",")[0] == "Selasa":
         for day, events in data_by_date.items():
+            if re.search("Sabtu", day) and not events:
+                break
             weekly.append(f":date: **{day}**\n")
             weekly.extend(events)
             weekly.append("\n﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋")
