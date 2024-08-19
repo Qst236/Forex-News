@@ -106,7 +106,12 @@ def formatJsonData(data):
     data_by_date = {}
     last = ""
 
-    temp_data = start()
+    temp_data = []
+    while len(data) != len(temp_data):
+        temp_data = start()
+        time.sleep(2)
+
+    
     for x in range(len(data)):
         data[x]["time"] = temp_data[x]["time"]
 
