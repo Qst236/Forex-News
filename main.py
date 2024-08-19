@@ -109,7 +109,6 @@ def formatJsonData(data):
     temp_data = []
     while len(data) != len(temp_data):
         temp_data = start()
-        time.sleep(2)
 
     
     for x in range(len(data)):
