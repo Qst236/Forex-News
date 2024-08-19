@@ -112,7 +112,8 @@ def formatJsonData(data):
 
     
     for x in range(len(data)):
-        data[x]["time"] = temp_data[x]["time"]
+        if data[x]["country"] == temp_data[x]["currency"]:
+            data[x]["time"] = temp_data[x]["time"]
 
     print(data)
 
