@@ -130,9 +130,9 @@ def formatJsonData(data):
         if re.search(":", item["time"]):
             time_str = item['date'][11:16]
             timed = datetime.strptime(time_str, "%H:%M")
-            time = timed.strftime("%-H:%M")
+            time = timed.strftime("%-H:%M").center(8, " ")
         else:
-            time = item["time"]
+            time = item["time"].center(8, " ")
         
         if item["impact"] != "Low" and item["impact"] != "Medium":
             if time == last:
@@ -140,7 +140,7 @@ def formatJsonData(data):
             else:
                 last = time
             data_by_date[day].append(
-                f"`{time.center(8, " ")}`{createFlag(item['country'])}  **{item['country'].upper()}** - **{item['title']}**"
+                f"`{time}`{createFlag(item['country'])}  **{item['country'].upper()}** - **{item['title']}**"
             )
         
      
