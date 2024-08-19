@@ -202,6 +202,7 @@ def sendWebhook(daily, weekly, data):
         )
 
         if weekly:
+            '''
             if "WEEKLY_ID" in data:
                 webhook.delete_message(data["WEEKLY_ID"])
 
@@ -211,7 +212,10 @@ def sendWebhook(daily, weekly, data):
             )
 
             newData["WEEKLY_ID"] = weekly.id
-
+            '''
+            weekly = webhook.edit_message(data["WEEKLY_ID"],
+                embed=discord.Embed(description=weekly, color=discord.Color.random()).set_footer(text='*Waktu: WIB (Asia/Jakarta)\n*Khusus berita dampak GEDE')
+            )
         '''
         if "DAILY_ID" in data:
             webhook.delete_message(data["DAILY_ID"])
