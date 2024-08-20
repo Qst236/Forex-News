@@ -219,7 +219,7 @@ def start():
     # month =  datetime.now().strftime("%A")
 
     ndata = reformat_scraped_data(data)
-    print(ndata)
+    # print(ndata)
     
 
     return ndata

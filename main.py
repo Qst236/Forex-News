@@ -116,7 +116,7 @@ def formatJsonData(data):
                 f"`{time}`{create_flag(item['country'])}  **{item['country'].upper()}** - **{item['title']}**"
             )
 
-    '''
+    # Berita harian
     title = f":date: **{today}**\n\n"
     content = ""
     date_content = True
@@ -143,7 +143,6 @@ def formatJsonData(data):
                 content += f"\n:date: **{tomorrow}**\n\n"
                 date_content = False
             content += f"{events}\n"
-    '''
             
     weekly = []
     start_day = False

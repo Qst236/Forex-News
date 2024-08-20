@@ -1,1 +1,1 @@
-# News Scratch
+# News bot for discord use webhook
