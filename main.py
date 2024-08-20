@@ -212,17 +212,17 @@ def send_webhook(daily, weekly, data):
         return send_webhook(daily, weekly, data)
 
 def main():
-
-    # now = datetime.now(pytz.timezone('Asia/Jakarta'))
-    now = datetime.strptime(os.environ["UPDATE_TIME"], "%Y-%m-%d %H:%M")
-    today = change_language( now.strftime("%a, %d %b") )
-    tomorrow = change_language( (now + timedelta(days=1)).strftime("%a, %d %b") )
-    # today = 'Sabtu, 10 Agustus'
-
     data = read()
     content = formatJsonData(get_news_api())
     # content = formatJsonData(news)
     newData = send_webhook(content[0], content[1], data)
     write(newData)
+
+
+# now = datetime.now(pytz.timezone('Asia/Jakarta'))
+now = datetime.strptime(os.environ["UPDATE_TIME"], "%Y-%m-%d %H:%M")
+today = change_language( now.strftime("%a, %d %b") )
+tomorrow = change_language( (now + timedelta(days=1)).strftime("%a, %d %b") )
+# today = 'Sabtu, 10 Agustus'
 
 main()
