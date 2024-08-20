@@ -160,7 +160,7 @@ def formatJsonData(data):
                 weekly.extend(events)
             weekly.append("\n﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋")
 
-
+    print(weekly)
     cweekly = "\n".join(weekly[:-1])
     debug(f"formatJsonData: {content, cweekly}")
     return content, cweekly
