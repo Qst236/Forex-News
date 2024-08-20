@@ -152,7 +152,7 @@ def formatJsonData(data):
 
         if today == day or start_day:
             start_day == True
-            
+
             weekly.append(f":date: **{day}**\n")
             if not events:
                 weekly.append("tidak ada news. :pepemoney1:")
