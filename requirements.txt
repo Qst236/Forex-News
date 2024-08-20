@@ -1,5 +1,5 @@
+pytz
+pandas
 discord
 requests
-pytz
 selenium
-pandas
