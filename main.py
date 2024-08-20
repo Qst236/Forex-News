@@ -148,7 +148,6 @@ def formatJsonData(data):
     start_day = False
     for day, events in data_by_date.items():
         if today == day or start_day:
-             and not events:
                 
             if re.search("Sabtu", day) and not events:
                 if re.search("Sabtu", today) and not events:
