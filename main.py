@@ -149,10 +149,10 @@ def formatJsonData(data):
     for day, events in data_by_date.items():
         if today == day or start_day:
                 
-            if re.search("Sabtu", day) and not events:
-                if re.search("Sabtu", today) and not events:
-                    weekly.append("update berikutnya hari minggu jam 1 siang. <a:GKek:887675713862373446>")
-                    break
+            if re.search("Sabtu", today) and not events:
+                #if re.search("Sabtu", today) and not events
+                weekly.append("update berikutnya hari minggu jam 1 siang. <a:GKek:887675713862373446>")
+                    #break
                 break
 
             weekly.append(f":date: **{day}**\n")
