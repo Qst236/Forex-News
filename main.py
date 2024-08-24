@@ -148,13 +148,6 @@ def formatJsonData(data):
     start_day = False
     for day, events in data_by_date.items():
         if today == day or start_day:
-                
-            if re.search("Sabtu", today) and not events:
-                #if re.search("Sabtu", today) and not events
-                weekly.append("update berikutnya hari minggu jam 1 siang. <a:GKek:887675713862373446>")
-                    #break
-                break
-
             weekly.append(f":date: **{day}**\n")
             if not events:
                 weekly.append("tidak ada news. <a:pepemoney1:1272102396239020074>")
@@ -165,8 +158,13 @@ def formatJsonData(data):
             start_day = True
 
     cweekly = "\n".join(weekly[:-1])
+
+    if re.search("Sabtu", today) and not weekly:
+        cweekly = "update berikutnya hari minggu jam 1 siang. <a:GKek:887675713862373446>"
+        break
+        
     debug(f"formatJsonData: {content, cweekly}")
-    return content, weekly
+    return content, cweekly
 
 def send_webhook(daily, weekly, data):
     try:
