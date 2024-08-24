@@ -161,7 +161,6 @@ def formatJsonData(data):
 
     if re.search("Sabtu", today) and not weekly:
         cweekly = "update berikutnya hari minggu jam 1 siang. <a:GKek:887675713862373446>"
-        break
         
     debug(f"formatJsonData: {content, cweekly}")
     return content, cweekly
