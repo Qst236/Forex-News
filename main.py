@@ -166,7 +166,7 @@ def formatJsonData(data):
 
     cweekly = "\n".join(weekly[:-1])
     debug(f"formatJsonData: {content, cweekly}")
-    return content, cweekly
+    return content, weekly
 
 def send_webhook(daily, weekly, data):
     try:
