@@ -2,7 +2,7 @@ name: Update News Information
 
 on:
   workflow_dispatch:
-  schedule:
+  #schedule:
     - cron: '0 6 * * Sun'
     - cron: '*/30 * * * Mon-Fri'
   push:
